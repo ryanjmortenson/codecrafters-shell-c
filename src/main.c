@@ -6,11 +6,12 @@ int main(int argc, char *argv[]) {
   setbuf(stdout, NULL);
   static char input[1024];
 
-  // TODO: Uncomment the code below to pass the first stage
-  //
-  printf("$ ");
+  while (1)
+  {
+    printf("$ ");
 
-  scanf("%s", input);
-  printf("%s: command not found", input);
+    scanf("%s", input);
+    printf("%s: command not found\n", input);
+  }
   return 0;
 }
