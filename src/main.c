@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
       if (strstr(input, "echo") != 0)
       {
         printf("%s\n", &input[5]);
-        break;
+        continue;
       }
       printf("%s: command not found\n", input);
     }
