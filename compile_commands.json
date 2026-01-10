@@ -1,0 +1,21 @@
+[
+  {
+    "file": "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/src/main.c",
+    "arguments": [
+      "cc",
+      "-g",
+      "-std=gnu2x",
+      "-MD",
+      "-MT",
+      "CMakeFiles/shell.dir/src/main.c.o",
+      "-MF",
+      "CMakeFiles/shell.dir/src/main.c.o.d",
+      "-o",
+      "CMakeFiles/shell.dir/src/main.c.o",
+      "-c",
+      "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/src/main.c"
+    ],
+    "directory": "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c",
+    "output": "CMakeFiles/shell.dir/src/main.c.o"
+  }
+]
