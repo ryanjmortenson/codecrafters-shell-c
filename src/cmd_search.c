@@ -11,7 +11,7 @@
 bool cmd_search(char* cmd, char* full_path, int full_path_len)
 {
   DIR* dp;
-  struct dirent *ep;
+  struct dirent* ep;
   char* path = getenv("PATH");
   char* cur_path_dir;
   char path_copy[BUFFER_SIZE];

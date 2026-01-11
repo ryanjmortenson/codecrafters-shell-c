@@ -1,9 +1,8 @@
+#include <dirent.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <sys/types.h>
-#include <dirent.h>
 #include <unistd.h>
 
 #include "cmd_search.h"

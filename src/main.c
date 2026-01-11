@@ -5,30 +5,30 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "cmd_search.h"
 #include "cmd_exec.h"
+#include "cmd_search.h"
 #include "type.h"
 
 #define BUFFER_SIZE (1024)
-#define NUM_TOKENS  (1024)
+#define NUM_TOKENS (1024)
 
 #define ECHO_CMD "echo"
 #define EXIT_CMD "exit"
 #define QUIT_CMD "quit"
 #define TYPE_CMD "type"
-#define PWD_CMD  "pwd"
-#define CHDIR_CMD  "cd"
+#define PWD_CMD "pwd"
+#define CHDIR_CMD "cd"
 
 char* builtins[] = {
-  ECHO_CMD,
-  EXIT_CMD,
-  QUIT_CMD,
-  TYPE_CMD,
-  PWD_CMD,
-  CHDIR_CMD
+  ECHO_CMD, // Formatting comment
+  EXIT_CMD, // Formatting comment
+  QUIT_CMD, // Formatting comment
+  TYPE_CMD, // Formatting comment
+  PWD_CMD,  // Formatting comment
+  CHDIR_CMD // Formatting comment
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   // Flush after every printf
   setbuf(stdout, NULL);
@@ -39,17 +39,13 @@ int main(int argc, char *argv[])
   int len;
   char* cur_token;
   char* command;
+  char* res;
 
   while (1)
   {
-    for (int idx = 0; idx < NUM_TOKENS; idx++)
-    {
-      tokens[idx] = NULL;
-    }
-
     printf("$ ");
-
-    char* res = fgets(input, BUFFER_SIZE, stdin);
+    memset(tokens, 0, sizeof(tokens));
+    res = fgets(input, BUFFER_SIZE, stdin);
     if (res != NULL)
     {
       // Remove carriage return from end of string
@@ -87,9 +83,8 @@ int main(int argc, char *argv[])
 
       if (strncmp(command, TYPE_CMD, BUFFER_SIZE) == 0)
       {
-        handle_type(tokens[1],
-                    builtins,
-                    sizeof(builtins)/sizeof(builtins[0]));
+        handle_type(
+          tokens[1], builtins, sizeof(builtins) / sizeof(builtins[0]));
         continue;
       }
 
@@ -99,7 +94,8 @@ int main(int argc, char *argv[])
 
         if (directory[0] == '~')
         {
-          snprintf(full_path, BUFFER_SIZE, "%s/%s", getenv("HOME"), &directory[1]);
+          snprintf(
+            full_path, BUFFER_SIZE, "%s/%s", getenv("HOME"), &directory[1]);
           directory = full_path;
         }
 
