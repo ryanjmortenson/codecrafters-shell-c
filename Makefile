@@ -153,6 +153,30 @@ src/main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/shell.dir/build.make CMakeFiles/shell.dir/src/main.c.s
 .PHONY : src/main.c.s
 
+src/type.o: src/type.c.o
+.PHONY : src/type.o
+
+# target to build an object file
+src/type.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shell.dir/build.make CMakeFiles/shell.dir/src/type.c.o
+.PHONY : src/type.c.o
+
+src/type.i: src/type.c.i
+.PHONY : src/type.i
+
+# target to preprocess a source file
+src/type.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shell.dir/build.make CMakeFiles/shell.dir/src/type.c.i
+.PHONY : src/type.c.i
+
+src/type.s: src/type.c.s
+.PHONY : src/type.s
+
+# target to generate assembly for a file
+src/type.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shell.dir/build.make CMakeFiles/shell.dir/src/type.c.s
+.PHONY : src/type.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +189,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/type.o"
+	@echo "... src/type.i"
+	@echo "... src/type.s"
 .PHONY : help
 
 

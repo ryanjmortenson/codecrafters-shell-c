@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/src/main.c" "CMakeFiles/shell.dir/src/main.c.o" "gcc" "CMakeFiles/shell.dir/src/main.c.o.d"
+  "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/src/type.c" "CMakeFiles/shell.dir/src/type.c.o" "gcc" "CMakeFiles/shell.dir/src/type.c.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "type.h"
+
 #define BUFFER_SIZE (1024)
 #define NUM_TOKENS  (1024)
 
@@ -71,21 +73,7 @@ int main(int argc, char *argv[])
 
       if (strstr(command, "type") != 0)
       {
-        bool found = false;
-        for (int idx = 0; idx < sizeof(builtins)/sizeof(builtins[0]); idx++)
-        {
-          if (strcmp(builtins[idx], tokens[1]) == 0)
-          {
-            printf("%s is a shell builtin\n", tokens[1]);
-            found = true;
-            break;
-          }
-        }
-
-        if (found == false)
-        {
-          printf("%s: not found\n", tokens[1]);
-        }
+        handle_type(tokens, token_idx, builtins, sizeof(builtins)/sizeof(builtins[0]));
         continue;
       }
 
