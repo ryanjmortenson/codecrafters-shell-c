@@ -1,21 +1,21 @@
 [
   {
-    "file": "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/src/main.c",
+    "file": "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/src/type.c",
     "arguments": [
       "cc",
       "-g",
       "-std=gnu2x",
       "-MD",
       "-MT",
-      "CMakeFiles/shell.dir/src/main.c.o",
+      "CMakeFiles/shell.dir/src/type.c.o",
       "-MF",
-      "CMakeFiles/shell.dir/src/main.c.o.d",
+      "CMakeFiles/shell.dir/src/type.c.o.d",
       "-o",
-      "CMakeFiles/shell.dir/src/main.c.o",
+      "CMakeFiles/shell.dir/src/type.c.o",
       "-c",
-      "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/src/main.c"
+      "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/src/type.c"
     ],
     "directory": "/home/mortzula/Workspace/code_crafters/codecrafters-shell-c",
-    "output": "CMakeFiles/shell.dir/src/main.c.o"
+    "output": "CMakeFiles/shell.dir/src/type.c.o"
   }
 ]
