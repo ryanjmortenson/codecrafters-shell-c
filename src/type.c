@@ -8,15 +8,15 @@
 
 #define BUF_SIZE (1024)
 
-static bool check_builtins(char* tokens, char** builtins, int builtins_len)
+static bool check_builtins(char* cmd, char** builtins, int builtins_len)
 {
   bool found = false;
 
   for (int idx = 0; idx < builtins_len; idx++)
   {
-    if (strcmp(builtins[idx], tokens) == 0)
+    if (strcmp(builtins[idx], cmd) == 0)
     {
-      printf("%s is a shell builtin\n", tokens);
+      printf("%s is a shell builtin\n", cmd);
       return true;
     }
   }
@@ -24,9 +24,9 @@ static bool check_builtins(char* tokens, char** builtins, int builtins_len)
   return false;
 }
 
-static bool check_commands(char* tokens)
+static bool check_commands(char* cmd)
 {
-  char* cur_token;
+  char* cur_path_dir;
   DIR* dp;
   struct dirent *ep;
   char* path = getenv("PATH");
@@ -34,17 +34,17 @@ static bool check_commands(char* tokens)
   char path_copy[BUF_SIZE];
 
   strcpy(path_copy, path);
-  cur_token = strtok(path_copy, ":");
-  while (cur_token != NULL)
+  cur_path_dir = strtok(path_copy, ":");
+  while (cur_path_dir != NULL)
   {
-    dp = opendir(cur_token);
+    dp = opendir(cur_path_dir);
     if (dp != NULL)
     {
       while ((ep = readdir(dp)) != NULL)
       {
         if (ep->d_type == DT_REG &&
-            strcmp(tokens, ep->d_name) == 0 &&
-            snprintf(full_path, BUF_SIZE, "%s/%s", cur_token, ep->d_name) &&
+            strcmp(cmd, ep->d_name) == 0 &&
+            snprintf(full_path, BUF_SIZE, "%s/%s", cur_path_dir, ep->d_name) &&
             access(full_path, X_OK) == 0)
         {
           printf("%s is %s\n", ep->d_name, full_path);
@@ -53,7 +53,7 @@ static bool check_commands(char* tokens)
       }
     }
 
-    cur_token = strtok(NULL, ":");
+    cur_path_dir = strtok(NULL, ":");
   }
 
   return false;

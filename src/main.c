@@ -55,12 +55,12 @@ int main(int argc, char *argv[])
       }
 
       command = tokens[0];
-      if (strncmp(command, "exit", BUFFER_SIZE) == 0)
+      if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0)
       {
         break;
       }
 
-      if (strstr(command, "echo") != 0)
+      if (strncmp(command, ECHO_CMD, BUFFER_SIZE) != 0)
       {
         for (int idx = 1; idx < token_idx; idx++)
         {
@@ -70,14 +70,13 @@ int main(int argc, char *argv[])
         continue;
       }
 
-      if (strstr(command, "type") != 0)
+      if (strstr(command, TYPE_CMD) != 0)
       {
         handle_type(tokens[1],
                     builtins,
                     sizeof(builtins)/sizeof(builtins[0]));
         continue;
       }
-
       printf("%s: command not found\n", input);
     }
     else
