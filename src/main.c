@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "cmd_search.h"
+#include "cmd_exec.h"
 #include "type.h"
 
 #define BUFFER_SIZE (1024)
@@ -13,6 +14,7 @@
 
 #define ECHO_CMD "echo"
 #define EXIT_CMD "exit"
+#define QUIT_CMD "quit"
 #define TYPE_CMD "type"
 #define PWD_CMD  "pwd"
 #define CHDIR_CMD  "cd"
@@ -20,6 +22,7 @@
 char* builtins[] = {
   ECHO_CMD,
   EXIT_CMD,
+  QUIT_CMD,
   TYPE_CMD,
   PWD_CMD,
   CHDIR_CMD
@@ -66,7 +69,8 @@ int main(int argc, char *argv[])
 
       tokens[token_idx] = NULL;
 
-      if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0)
+      if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
+          strncmp(command, QUIT_CMD, BUFFER_SIZE) == 0)
       {
         break;
       }
@@ -113,17 +117,8 @@ int main(int argc, char *argv[])
 
       if (cmd_search(command, full_path, BUFFER_SIZE) == true)
       {
-        int pid = fork();
-        if (pid == 0)
+        if (execute(command, tokens) == true)
         {
-          if(execvp(command, tokens))
-          {
-            exit(127);
-          }
-        }
-        else if (pid > 0)
-        {
-          waitpid(pid, NULL, 0);
           continue;
         }
       }
