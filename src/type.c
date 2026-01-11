@@ -8,15 +8,15 @@
 
 #define BUF_SIZE (1024)
 
-bool check_builtins(char** tokens, int token_len, char** builtins, int builtins_len)
+static bool check_builtins(char* tokens, char** builtins, int builtins_len)
 {
   bool found = false;
 
   for (int idx = 0; idx < builtins_len; idx++)
   {
-    if (strcmp(builtins[idx], tokens[1]) == 0)
+    if (strcmp(builtins[idx], tokens) == 0)
     {
-      printf("%s is a shell builtin\n", tokens[1]);
+      printf("%s is a shell builtin\n", tokens);
       return true;
     }
   }
@@ -24,7 +24,7 @@ bool check_builtins(char** tokens, int token_len, char** builtins, int builtins_
   return false;
 }
 
-bool check_commands(char** tokens, int token_len)
+static bool check_commands(char* tokens)
 {
   char* cur_token;
   DIR* dp;
@@ -43,7 +43,7 @@ bool check_commands(char** tokens, int token_len)
       while ((ep = readdir(dp)) != NULL)
       {
         if (ep->d_type == DT_REG &&
-            strcmp(tokens[1], ep->d_name) == 0 &&
+            strcmp(tokens, ep->d_name) == 0 &&
             snprintf(full_path, BUF_SIZE, "%s/%s", cur_token, ep->d_name) &&
             access(full_path, X_OK) == 0)
         {
@@ -61,6 +61,8 @@ bool check_commands(char** tokens, int token_len)
 
 void handle_type(char** tokens, int token_len, char** builtins, int builtins_len)
 {
+  char* cmd;
+
   if (tokens == NULL || *tokens == NULL)
   {
     printf("Invalid input\n");
@@ -71,9 +73,10 @@ void handle_type(char** tokens, int token_len, char** builtins, int builtins_len
     printf("Invalid input\n");
   }
 
-  if (check_builtins(tokens, token_len, builtins, builtins_len) == false &&
-      check_commands(tokens, token_len) == false)
+  cmd = tokens[1];
+  if (check_builtins(cmd, builtins, builtins_len) == false &&
+      check_commands(cmd) == false)
   {
-    printf("%s: not found\n", tokens[1]);
+    printf("%s: not found\n", cmd);
   }
 }
