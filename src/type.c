@@ -59,21 +59,18 @@ static bool check_commands(char* tokens)
   return false;
 }
 
-void handle_type(char** tokens, int token_len, char** builtins, int builtins_len)
+void handle_type(char* cmd, char** builtins, int builtins_len)
 {
-  char* cmd;
-
-  if (tokens == NULL || *tokens == NULL)
+  if (cmd == NULL)
   {
-    printf("Invalid input\n");
+    printf("Invalid input cmd\n");
   }
 
   if (builtins == NULL || *builtins == NULL)
   {
-    printf("Invalid input\n");
+    printf("Invalid input builtins\n");
   }
 
-  cmd = tokens[1];
   if (check_builtins(cmd, builtins, builtins_len) == false &&
       check_commands(cmd) == false)
   {

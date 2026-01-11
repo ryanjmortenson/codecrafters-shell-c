@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
       }
 
       command = tokens[0];
-
       if (strncmp(command, "exit", BUFFER_SIZE) == 0)
       {
         break;
@@ -73,7 +72,9 @@ int main(int argc, char *argv[])
 
       if (strstr(command, "type") != 0)
       {
-        handle_type(tokens, token_idx, builtins, sizeof(builtins)/sizeof(builtins[0]));
+        handle_type(tokens[1],
+                    builtins,
+                    sizeof(builtins)/sizeof(builtins[0]));
         continue;
       }
 
