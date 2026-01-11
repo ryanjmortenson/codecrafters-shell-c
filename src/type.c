@@ -29,7 +29,6 @@ bool check_commands(char** tokens, int token_len)
   char* cur_token;
   DIR* dp;
   struct dirent *ep;
-  bool found = false;
   char* path = getenv("PATH");
   char full_path[BUF_SIZE];
   char path_copy[BUF_SIZE];
@@ -48,22 +47,16 @@ bool check_commands(char** tokens, int token_len)
             snprintf(full_path, BUF_SIZE, "%s/%s", cur_token, ep->d_name) &&
             access(full_path, X_OK) == 0)
         {
-          printf("%s is %s/%s\n", ep->d_name, cur_token, ep->d_name);
-          found = true;
-          break;
+          printf("%s is %s\n", ep->d_name, full_path);
+          return true;
         }
       }
-    }
-
-    if (found == true)
-    {
-      break;
     }
 
     cur_token = strtok(NULL, ":");
   }
 
-  return found;
+  return false;
 }
 
 void handle_type(char** tokens, int token_len, char** builtins, int builtins_len)
