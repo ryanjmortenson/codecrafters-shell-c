@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
         break;
       }
 
-      if (strncmp(command, ECHO_CMD, BUFFER_SIZE) != 0)
+      if (strncmp(command, ECHO_CMD, BUFFER_SIZE) == 0)
       {
         for (int idx = 1; idx < token_idx; idx++)
         {
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
         continue;
       }
 
-      if (strstr(command, TYPE_CMD) != 0)
+      if (strncmp(command, TYPE_CMD, BUFFER_SIZE) == 0)
       {
         handle_type(tokens[1],
                     builtins,

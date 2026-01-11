@@ -6,7 +6,9 @@
 #include <dirent.h>
 #include <unistd.h>
 
-#define BUF_SIZE (1024)
+#include "cmd_search.h"
+
+#define BUFFER_SIZE (1024)
 
 static bool check_builtins(char* cmd, char** builtins, int builtins_len)
 {
@@ -26,34 +28,12 @@ static bool check_builtins(char* cmd, char** builtins, int builtins_len)
 
 static bool check_commands(char* cmd)
 {
-  char* cur_path_dir;
-  DIR* dp;
-  struct dirent *ep;
-  char* path = getenv("PATH");
-  char full_path[BUF_SIZE];
-  char path_copy[BUF_SIZE];
+  char full_path[BUFFER_SIZE];
 
-  strcpy(path_copy, path);
-  cur_path_dir = strtok(path_copy, ":");
-  while (cur_path_dir != NULL)
+  if (cmd_search(cmd, full_path, BUFFER_SIZE) == true)
   {
-    dp = opendir(cur_path_dir);
-    if (dp != NULL)
-    {
-      while ((ep = readdir(dp)) != NULL)
-      {
-        if (ep->d_type == DT_REG &&
-            strcmp(cmd, ep->d_name) == 0 &&
-            snprintf(full_path, BUF_SIZE, "%s/%s", cur_path_dir, ep->d_name) &&
-            access(full_path, X_OK) == 0)
-        {
-          printf("%s is %s\n", ep->d_name, full_path);
-          return true;
-        }
-      }
-    }
-
-    cur_path_dir = strtok(NULL, ":");
+    printf("%s is %s\n", cmd, full_path);
+    return true;
   }
 
   return false;

@@ -129,6 +129,30 @@ shell/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/shell.dir/build.make CMakeFiles/shell.dir/build
 .PHONY : shell/fast
 
+src/cmd_search.o: src/cmd_search.c.o
+.PHONY : src/cmd_search.o
+
+# target to build an object file
+src/cmd_search.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shell.dir/build.make CMakeFiles/shell.dir/src/cmd_search.c.o
+.PHONY : src/cmd_search.c.o
+
+src/cmd_search.i: src/cmd_search.c.i
+.PHONY : src/cmd_search.i
+
+# target to preprocess a source file
+src/cmd_search.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shell.dir/build.make CMakeFiles/shell.dir/src/cmd_search.c.i
+.PHONY : src/cmd_search.c.i
+
+src/cmd_search.s: src/cmd_search.c.s
+.PHONY : src/cmd_search.s
+
+# target to generate assembly for a file
+src/cmd_search.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shell.dir/build.make CMakeFiles/shell.dir/src/cmd_search.c.s
+.PHONY : src/cmd_search.c.s
+
 src/main.o: src/main.c.o
 .PHONY : src/main.o
 
@@ -186,6 +210,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... shell"
+	@echo "... src/cmd_search.o"
+	@echo "... src/cmd_search.i"
+	@echo "... src/cmd_search.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
