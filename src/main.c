@@ -95,7 +95,15 @@ int main(int argc, char *argv[])
 
       if (strncmp(command, CHDIR_CMD, BUFFER_SIZE) == 0)
       {
-        if (chdir(tokens[1]) != 0)
+        char* directory = tokens[1];
+
+        if (directory[0] == '~')
+        {
+          snprintf(full_path, BUFFER_SIZE, "%s/%s", getenv("HOME"), &directory[1]);
+          directory = full_path;
+        }
+
+        if (chdir(directory) != 0)
         {
           printf("cd: %s: No such file or directory\n", tokens[1]);
         }
