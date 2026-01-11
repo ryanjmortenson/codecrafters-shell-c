@@ -14,11 +14,13 @@
 #define ECHO_CMD "echo"
 #define EXIT_CMD "exit"
 #define TYPE_CMD "type"
+#define PWD_CMD  "pwd"
 
 char* builtins[] = {
   ECHO_CMD,
   EXIT_CMD,
-  TYPE_CMD
+  TYPE_CMD,
+  PWD_CMD
 };
 
 int main(int argc, char *argv[])
@@ -82,6 +84,19 @@ int main(int argc, char *argv[])
         handle_type(tokens[1],
                     builtins,
                     sizeof(builtins)/sizeof(builtins[0]));
+        continue;
+      }
+
+      if (strncmp(command, PWD_CMD, BUFFER_SIZE) == 0)
+      {
+        if (getcwd(full_path, BUFFER_SIZE) != NULL)
+        {
+          printf("%s\n", full_path);
+        }
+        else
+        {
+          printf("Couldn't get current working director\n");
+        }
         continue;
       }
 
