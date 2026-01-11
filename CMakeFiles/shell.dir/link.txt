@@ -1,1 +1,0 @@
-/usr/bin/cc -g CMakeFiles/shell.dir/src/cmd_exec.c.o CMakeFiles/shell.dir/src/cmd_search.c.o CMakeFiles/shell.dir/src/main.c.o CMakeFiles/shell.dir/src/type.c.o -o shell  -lreadline 

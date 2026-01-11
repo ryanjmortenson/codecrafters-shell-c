@@ -1,3 +1,0 @@
-/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/CMakeFiles/shell.dir
-/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/CMakeFiles/edit_cache.dir
-/home/mortzula/Workspace/code_crafters/codecrafters-shell-c/CMakeFiles/rebuild_cache.dir
