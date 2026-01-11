@@ -15,12 +15,14 @@
 #define EXIT_CMD "exit"
 #define TYPE_CMD "type"
 #define PWD_CMD  "pwd"
+#define CHDIR_CMD  "cd"
 
 char* builtins[] = {
   ECHO_CMD,
   EXIT_CMD,
   TYPE_CMD,
-  PWD_CMD
+  PWD_CMD,
+  CHDIR_CMD
 };
 
 int main(int argc, char *argv[])
@@ -84,6 +86,15 @@ int main(int argc, char *argv[])
         handle_type(tokens[1],
                     builtins,
                     sizeof(builtins)/sizeof(builtins[0]));
+        continue;
+      }
+
+      if (strncmp(command, CHDIR_CMD, BUFFER_SIZE) == 0)
+      {
+        if (chdir(tokens[1]) != 0)
+        {
+          printf("cd: %s: No such file or directory\n", tokens[1]);
+        }
         continue;
       }
 
