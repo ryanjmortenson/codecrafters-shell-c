@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
+#include "cmd_search.h"
 #include "type.h"
 
 #define BUFFER_SIZE (1024)
@@ -24,6 +27,7 @@ int main(int argc, char *argv[])
   setbuf(stdout, NULL);
   static char input[BUFFER_SIZE];
   static char* tokens[NUM_TOKENS];
+  static char full_path[BUFFER_SIZE];
   int token_idx;
   int len;
   char* cur_token;
@@ -49,12 +53,15 @@ int main(int argc, char *argv[])
       token_idx = 0;
       cur_token = strtok(input, " ");
       tokens[token_idx++] = cur_token;
+      command = tokens[0];
 
-      while ((cur_token = strtok(NULL, " ")) != NULL) {
+      while ((cur_token = strtok(NULL, " ")) != NULL)
+      {
         tokens[token_idx++] = cur_token;
       }
 
-      command = tokens[0];
+      tokens[token_idx] = NULL;
+
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0)
       {
         break;
@@ -77,6 +84,24 @@ int main(int argc, char *argv[])
                     sizeof(builtins)/sizeof(builtins[0]));
         continue;
       }
+
+      if (cmd_search(command, full_path, BUFFER_SIZE) == true)
+      {
+        int pid = fork();
+        if (pid == 0)
+        {
+          if(execvp(command, tokens))
+          {
+            exit(127);
+          }
+        }
+        else if (pid > 0)
+        {
+          waitpid(pid, NULL, 0);
+          continue;
+        }
+      }
+
       printf("%s: command not found\n", input);
     }
     else
