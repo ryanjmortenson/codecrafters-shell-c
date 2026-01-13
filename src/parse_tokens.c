@@ -97,8 +97,7 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
         if (cur_char == BACKSLASH)
         {
           char escaped = input[i + 1];
-          if (escaped == BACKSLASH ||
-              escaped == DOUBLE_QUOTE)
+          if (escaped == BACKSLASH || escaped == DOUBLE_QUOTE)
           {
             state = FOUND_DOUBLE_QUOTE_ESCAPE;
             break;

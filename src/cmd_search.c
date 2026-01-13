@@ -25,8 +25,7 @@ bool cmd_search(char* cmd, char* full_path, int full_path_len)
     {
       while ((ep = readdir(dp)) != NULL)
       {
-        if (ep->d_type == DT_REG &&
-            strcmp(cmd, ep->d_name) == 0 &&
+        if (ep->d_type == DT_REG && strcmp(cmd, ep->d_name) == 0 &&
             snprintf(full_path, BUFFER_SIZE, "%s/%s", cur_path_dir, cmd) &&
             access(full_path, X_OK) == 0)
         {

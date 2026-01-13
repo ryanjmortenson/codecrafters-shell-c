@@ -50,8 +50,7 @@ void handle_type(char* cmd, char** builtins, int builtins_len)
     printf("Invalid input builtins\n");
   }
 
-  if (check_builtins(cmd, builtins, builtins_len) == false &&
-      check_commands(cmd) == false)
+  if (check_builtins(cmd, builtins, builtins_len) == false && check_commands(cmd) == false)
   {
     printf("%s: not found\n", cmd);
   }
