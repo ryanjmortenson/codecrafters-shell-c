@@ -32,6 +32,7 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
   for (int i = 0; i < input_len; i++)
   {
     char cur_char = input[i];
+    bool copy_char = false;
 
     if (tokens_idx >= MAX_TOKENS)
     {
@@ -48,8 +49,10 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
     switch (state)
     {
       case LOOKING_FOR_SPACE:
+        // Found a space
         if (cur_char == SPACE)
         {
+          // Current character is a space and previous isn't a space start a new token
           if (input[i - 1] != SPACE)
           {
             token_idx = 0;
@@ -58,45 +61,58 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
           break;
         }
 
+        // Found a backslash escape sequence
         if (cur_char == '\\')
         {
           state = FOUND_SLASH;
           break;
         }
 
+        // Start a quoted sequence
         if (cur_char == SINGLE_QUOTE || cur_char == DOUBLE_QUOTE)
         {
           state = (cur_char == SINGLE_QUOTE) ? FOUND_SINGLE_QUOTE : FOUND_DOUBLE_QUOTE;
           break;
         }
 
-        cur_token[token_idx++] = cur_char;
+        // Not a special character, copy character to token buffer
+        copy_char = true;
         break;
 
       case FOUND_SINGLE_QUOTE:
+        // Found end single quote, go back to looking for space state
         if (cur_char == SINGLE_QUOTE)
         {
           state = LOOKING_FOR_SPACE;
           break;
         }
 
-        cur_token[token_idx++] = cur_char;
+        // Still inside quoted test, copy character to token buffer
+        copy_char = true;
         break;
 
       case FOUND_DOUBLE_QUOTE:
+        // Found end double quote, go back to looking for space state
         if (cur_char == DOUBLE_QUOTE)
         {
           state = LOOKING_FOR_SPACE;
           break;
         }
 
-        cur_token[token_idx++] = cur_char;
+        // Still inside quoted test, copy character to token buffer
+        copy_char = true;
         break;
 
       case FOUND_SLASH:
-        cur_token[token_idx++] = cur_char;
+        // Copy character after slash, go back to looking for space state
+        copy_char = true;
         state = LOOKING_FOR_SPACE;
         break;
+    }
+
+    if (copy_char == true)
+    {
+      cur_token[token_idx++] = cur_char;
     }
   }
 
