@@ -7,8 +7,8 @@
 
 #include "cmd_exec.h"
 #include "cmd_search.h"
-#include "type.h"
 #include "parse_tokens.h"
+#include "type.h"
 
 #define BUFFER_SIZE (1024)
 #define MAX_TOKENS (1024)
@@ -87,9 +87,7 @@ int main(int argc, char* argv[])
 
       if (strncmp(command, TYPE_CMD, BUFFER_SIZE) == 0)
       {
-        handle_type(tokens[1],
-                    builtins,
-                    sizeof(builtins) / sizeof(builtins[0]));
+        handle_type(tokens[1], builtins, sizeof(builtins) / sizeof(builtins[0]));
         continue;
       }
 
@@ -99,8 +97,7 @@ int main(int argc, char* argv[])
 
         if (directory[0] == '~')
         {
-          snprintf(
-            full_path, BUFFER_SIZE, "%s/%s", getenv("HOME"), &directory[1]);
+          snprintf(full_path, BUFFER_SIZE, "%s/%s", getenv("HOME"), &directory[1]);
           directory = full_path;
         }
 

@@ -42,8 +42,7 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
 
         if (cur_char == SINGLE_QUOTE || cur_char == DOUBLE_QUOTE)
         {
-          state = (cur_char == SINGLE_QUOTE) ? FOUND_SINGLE_QUOTE
-                                             : FOUND_DOUBLE_QUOTE;
+          state = (cur_char == SINGLE_QUOTE) ? FOUND_SINGLE_QUOTE : FOUND_DOUBLE_QUOTE;
           break;
         }
 
@@ -77,11 +76,7 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
   return true;
 }
 
-bool parse_tokens(char* input,
-                  int input_len,
-                  char** out_tokens,
-                  int tokens_len,
-                  int* num_tokens)
+bool parse_tokens(char* input, int input_len, char** out_tokens, int tokens_len, int* num_tokens)
 {
   int token_idx = 0;
   char* cur_token;
