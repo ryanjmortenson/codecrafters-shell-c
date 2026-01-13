@@ -18,6 +18,10 @@
 #define STDOUT_REDIRECT "1>"
 #define STDERR_REDIRECT "2>"
 
+#define STDOUT_APPEND_REDIRECT_SHORT ">>"
+#define STDOUT_APPEND_REDIRECT "1>>"
+#define STDERR_APPEND_REDIRECT "2>>"
+
 #define ECHO_CMD "echo"
 #define EXIT_CMD "exit"
 #define QUIT_CMD "quit"
@@ -47,6 +51,7 @@ int main(int argc, char* argv[])
   char* res;
   int original_fd;
   FILE* redirection;
+  int mode = 0;
 
   while (1)
   {
@@ -90,17 +95,32 @@ int main(int argc, char* argv[])
             strcmp(tokens[i], STDOUT_REDIRECT) == 0)
         {
           redirection = stdout;
+          mode = O_CREAT;
         }
 
         if (strcmp(tokens[i], STDERR_REDIRECT) == 0)
         {
           redirection = stderr;
+          mode = O_CREAT;
+        }
+
+        if (strcmp(tokens[i], STDOUT_APPEND_REDIRECT_SHORT) == 0 ||
+            strcmp(tokens[i], STDOUT_APPEND_REDIRECT) == 0)
+        {
+          redirection = stdout;
+          mode = O_APPEND;
+        }
+
+        if (strcmp(tokens[i], STDERR_APPEND_REDIRECT) == 0)
+        {
+          redirection = stderr;
+          mode = O_APPEND;
         }
 
         if (redirection != NULL)
         {
           original_fd = dup(fileno(redirection));
-          int new_fd = open(tokens[i + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+          int new_fd = open(tokens[i + 1], O_CREAT | O_WRONLY | mode, 0644);
           dup2(new_fd, fileno(redirection));
           tokens[i] = NULL;
           break;
