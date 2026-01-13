@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +13,9 @@
 
 #define BUFFER_SIZE (1024)
 #define MAX_TOKENS (1024)
+
+#define STDOUT_REDIRECT_SHORT ">"
+#define STDOUT_REDIRECT "1>"
 
 #define ECHO_CMD "echo"
 #define EXIT_CMD "exit"
@@ -40,9 +44,16 @@ int main(int argc, char* argv[])
   int num_tokens;
   char* command;
   char* res;
+  char* redirect_file_name;
+  int original_fd;
 
   while (1)
   {
+    if (redirect_file_name != NULL)
+    {
+      dup2(original_fd, fileno(stdout));
+    }
+
     printf("$ ");
     res = fgets(input, BUFFER_SIZE, stdin);
 
@@ -50,6 +61,8 @@ int main(int argc, char* argv[])
     {
       // Zeroize tokens
       memset(tokens, 0, sizeof(tokens));
+
+      redirect_file_name = NULL;
 
       // Remove carriage return from end of string
       len = strnlen(input, BUFFER_SIZE);
@@ -69,6 +82,27 @@ int main(int argc, char* argv[])
 
       // Process commands
       command = tokens[0];
+
+      // Check for redirection
+      for (int i = 0; i < num_tokens; i++)
+      {
+        if (strcmp(tokens[i], STDOUT_REDIRECT_SHORT) == 0 ||
+            strcmp(tokens[i], STDOUT_REDIRECT) == 0)
+        {
+          redirect_file_name = tokens[i + 1];
+          tokens[i] = NULL;
+          break;
+        }
+      }
+
+      if (redirect_file_name != NULL)
+      {
+        // printf("Redirecting output to %s\n", redirect_file_name);
+        original_fd = dup(fileno(stdout));
+        int new_fd = open(redirect_file_name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+        dup2(new_fd, fileno(stdout));
+      }
+
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
           strncmp(command, QUIT_CMD, BUFFER_SIZE) == 0)
       {
@@ -77,7 +111,7 @@ int main(int argc, char* argv[])
 
       if (strncmp(command, ECHO_CMD, BUFFER_SIZE) == 0)
       {
-        for (int idx = 1; idx < num_tokens; idx++)
+        for (int idx = 1; idx < num_tokens && tokens[idx] != NULL; idx++)
         {
           printf("%s ", tokens[idx]);
         }
