@@ -10,6 +10,7 @@ enum parse_state
   LOOKING_FOR_SPACE,
   FOUND_DOUBLE_QUOTE,
   FOUND_SINGLE_QUOTE,
+  FOUND_SLASH,
 };
 
 static char tokens[128][1024];
@@ -40,6 +41,12 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
           break;
         }
 
+        if (cur_char == '\\')
+        {
+          state = FOUND_SLASH;
+          break;
+        }
+
         if (cur_char == SINGLE_QUOTE || cur_char == DOUBLE_QUOTE)
         {
           state = (cur_char == SINGLE_QUOTE) ? FOUND_SINGLE_QUOTE : FOUND_DOUBLE_QUOTE;
@@ -67,6 +74,11 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
         }
 
         cur_token[token_idx++] = cur_char;
+        break;
+
+      case FOUND_SLASH:
+        cur_token[token_idx++] = cur_char;
+        state = LOOKING_FOR_SPACE;
         break;
     }
   }
