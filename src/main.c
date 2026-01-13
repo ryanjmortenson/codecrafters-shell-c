@@ -45,23 +45,16 @@ int main(int argc, char* argv[])
   int num_tokens;
   char* command;
   char* res;
-  char* redirect_file_name;
+  char* redirect_file_name = NULL;
   int original_fd;
-  int redirect_type = 0;
+  FILE* redirection;
+  int redirection_type = 0;
 
   while (1)
   {
     if (redirect_file_name != NULL)
     {
-      if (redirect_type == 1)
-      {
-        dup2(original_fd, fileno(stdout));
-      }
-      else
-      {
-        dup2(original_fd, fileno(stderr));
-      }
-      redirect_type = 0;
+      dup2(original_fd, fileno(redirection));
     }
 
     printf("$ ");
@@ -94,40 +87,34 @@ int main(int argc, char* argv[])
       command = tokens[0];
 
       // Check for redirection
+      redirection_type = 0;
       for (int i = 0; i < num_tokens; i++)
       {
         if (strcmp(tokens[i], STDOUT_REDIRECT_SHORT) == 0 ||
             strcmp(tokens[i], STDOUT_REDIRECT) == 0)
         {
-          redirect_file_name = tokens[i + 1];
-          tokens[i] = NULL;
-          redirect_type = 1;
-          break;
+          redirection_type = 1;
         }
 
         if (strcmp(tokens[i], STDERR_REDIRECT) == 0)
         {
+          redirection_type = 2;
+        }
+
+        if (redirection_type != 0)
+        {
           redirect_file_name = tokens[i + 1];
+          redirection = (redirection_type == 1) ? stdout : stderr;
           tokens[i] = NULL;
-          redirect_type = 2;
           break;
         }
       }
 
       if (redirect_file_name != NULL)
       {
-        if (redirect_type == 1)
-        {
-          original_fd = dup(fileno(stdout));
-          int new_fd = open(redirect_file_name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-          dup2(new_fd, fileno(stdout));
-        }
-        else
-        {
-          original_fd = dup(fileno(stderr));
-          int new_fd = open(redirect_file_name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-          dup2(new_fd, fileno(stderr));
-        }
+        original_fd = dup(fileno(redirection));
+        int new_fd = open(redirect_file_name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+        dup2(new_fd, fileno(redirection));
       }
 
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
