@@ -8,9 +8,10 @@
 #include "cmd_exec.h"
 #include "cmd_search.h"
 #include "type.h"
+#include "parse_tokens.h"
 
 #define BUFFER_SIZE (1024)
-#define NUM_TOKENS (1024)
+#define MAX_TOKENS (1024)
 
 #define ECHO_CMD "echo"
 #define EXIT_CMD "exit"
@@ -33,38 +34,41 @@ int main(int argc, char* argv[])
   // Flush after every printf
   setbuf(stdout, NULL);
   static char input[BUFFER_SIZE];
-  static char* tokens[NUM_TOKENS];
+  static char* tokens[MAX_TOKENS];
   static char full_path[BUFFER_SIZE];
-  int token_idx;
   int len;
-  char* cur_token;
+  int num_tokens;
   char* command;
   char* res;
 
   while (1)
   {
     printf("$ ");
-    memset(tokens, 0, sizeof(tokens));
     res = fgets(input, BUFFER_SIZE, stdin);
+
     if (res != NULL)
     {
+      // Zeroize tokens
+      memset(tokens, 0, sizeof(tokens));
+
       // Remove carriage return from end of string
       len = strnlen(input, BUFFER_SIZE);
-      input[len - 1] = '\0';
-
-      // Tokenize input
-      token_idx = 0;
-      cur_token = strtok(input, " ");
-      tokens[token_idx++] = cur_token;
-      command = tokens[0];
-
-      while ((cur_token = strtok(NULL, " ")) != NULL)
+      if (len == 1)
       {
-        tokens[token_idx++] = cur_token;
+        continue;
       }
 
-      tokens[token_idx] = NULL;
+      input[len - 1] = '\0';
 
+      // Parse into tokens including spaces and quotes
+      if (parse_tokens(input, len, tokens, MAX_TOKENS, &num_tokens) == false)
+      {
+        printf("Could not parse command\n");
+        continue;
+      }
+
+      // Process commands
+      command = tokens[0];
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
           strncmp(command, QUIT_CMD, BUFFER_SIZE) == 0)
       {
@@ -73,7 +77,7 @@ int main(int argc, char* argv[])
 
       if (strncmp(command, ECHO_CMD, BUFFER_SIZE) == 0)
       {
-        for (int idx = 1; idx < token_idx; idx++)
+        for (int idx = 1; idx < num_tokens; idx++)
         {
           printf("%s ", tokens[idx]);
         }
@@ -83,8 +87,9 @@ int main(int argc, char* argv[])
 
       if (strncmp(command, TYPE_CMD, BUFFER_SIZE) == 0)
       {
-        handle_type(
-          tokens[1], builtins, sizeof(builtins) / sizeof(builtins[0]));
+        handle_type(tokens[1],
+                    builtins,
+                    sizeof(builtins) / sizeof(builtins[0]));
         continue;
       }
 
