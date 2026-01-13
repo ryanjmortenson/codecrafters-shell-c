@@ -7,11 +7,13 @@
 #define SINGLE_QUOTE '\''
 #define DOUBLE_QUOTE '\"'
 #define SPACE ' '
+#define BACKSLASH '\\'
 
 enum parse_state
 {
   LOOKING_FOR_SPACE,
   FOUND_DOUBLE_QUOTE,
+  FOUND_DOUBLE_QUOTE_ESCAPE,
   FOUND_SINGLE_QUOTE,
   FOUND_SLASH,
 };
@@ -92,6 +94,17 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
         break;
 
       case FOUND_DOUBLE_QUOTE:
+        if (cur_char == BACKSLASH)
+        {
+          char escaped = input[i + 1];
+          if (escaped == BACKSLASH ||
+              escaped == DOUBLE_QUOTE)
+          {
+            state = FOUND_DOUBLE_QUOTE_ESCAPE;
+            break;
+          }
+        }
+
         // Found end double quote, go back to looking for space state
         if (cur_char == DOUBLE_QUOTE)
         {
@@ -101,6 +114,12 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
 
         // Still inside quoted test, copy character to token buffer
         copy_char = true;
+        break;
+
+      case FOUND_DOUBLE_QUOTE_ESCAPE:
+        // Copy character after slash, go back to looking for space state
+        copy_char = true;
+        state = FOUND_DOUBLE_QUOTE;
         break;
 
       case FOUND_SLASH:
