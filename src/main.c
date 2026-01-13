@@ -48,7 +48,6 @@ int main(int argc, char* argv[])
   char* redirect_file_name = NULL;
   int original_fd;
   FILE* redirection;
-  int redirection_type = 0;
 
   while (1)
   {
@@ -64,8 +63,6 @@ int main(int argc, char* argv[])
     {
       // Zeroize tokens
       memset(tokens, 0, sizeof(tokens));
-
-      redirect_file_name = NULL;
 
       // Remove carriage return from end of string
       len = strnlen(input, BUFFER_SIZE);
@@ -87,24 +84,24 @@ int main(int argc, char* argv[])
       command = tokens[0];
 
       // Check for redirection
-      redirection_type = 0;
+      redirect_file_name = NULL;
+      redirection = NULL;
       for (int i = 0; i < num_tokens; i++)
       {
         if (strcmp(tokens[i], STDOUT_REDIRECT_SHORT) == 0 ||
             strcmp(tokens[i], STDOUT_REDIRECT) == 0)
         {
-          redirection_type = 1;
+          redirection = stdout;
         }
 
         if (strcmp(tokens[i], STDERR_REDIRECT) == 0)
         {
-          redirection_type = 2;
+          redirection = stderr;
         }
 
-        if (redirection_type != 0)
+        if (redirection != NULL)
         {
           redirect_file_name = tokens[i + 1];
-          redirection = (redirection_type == 1) ? stdout : stderr;
           tokens[i] = NULL;
           break;
         }
