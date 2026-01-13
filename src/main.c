@@ -45,13 +45,12 @@ int main(int argc, char* argv[])
   int num_tokens;
   char* command;
   char* res;
-  char* redirect_file_name = NULL;
   int original_fd;
   FILE* redirection;
 
   while (1)
   {
-    if (redirect_file_name != NULL)
+    if (redirection != NULL)
     {
       dup2(original_fd, fileno(redirection));
     }
@@ -84,7 +83,6 @@ int main(int argc, char* argv[])
       command = tokens[0];
 
       // Check for redirection
-      redirect_file_name = NULL;
       redirection = NULL;
       for (int i = 0; i < num_tokens; i++)
       {
@@ -101,18 +99,14 @@ int main(int argc, char* argv[])
 
         if (redirection != NULL)
         {
-          redirect_file_name = tokens[i + 1];
+          original_fd = dup(fileno(redirection));
+          int new_fd = open(tokens[i + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+          dup2(new_fd, fileno(redirection));
           tokens[i] = NULL;
           break;
         }
       }
 
-      if (redirect_file_name != NULL)
-      {
-        original_fd = dup(fileno(redirection));
-        int new_fd = open(redirect_file_name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-        dup2(new_fd, fileno(redirection));
-      }
 
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
           strncmp(command, QUIT_CMD, BUFFER_SIZE) == 0)
