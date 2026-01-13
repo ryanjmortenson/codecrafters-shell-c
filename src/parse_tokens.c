@@ -116,7 +116,7 @@ bool parse_tokens(char* input, int input_len, char** out_tokens, int tokens_len,
     return false;
   }
 
-  if (out_tokens == NULL || num_tokens == NULL || tokens_len <= 0)
+  if (out_tokens == NULL || tokens_len <= 0 || num_tokens == NULL)
   {
     printf("Incorrect params: tokens 0x%p, len %d, num_tokens 0x%p\n",
            out_tokens,
