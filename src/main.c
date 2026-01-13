@@ -127,7 +127,6 @@ int main(int argc, char* argv[])
         }
       }
 
-
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
           strncmp(command, QUIT_CMD, BUFFER_SIZE) == 0)
       {
