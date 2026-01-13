@@ -1,4 +1,6 @@
 #include <fcntl.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,16 +44,17 @@ int main(int argc, char* argv[])
 {
   // Flush after every printf
   setbuf(stdout, NULL);
-  static char input[BUFFER_SIZE];
   static char* tokens[MAX_TOKENS];
   static char full_path[BUFFER_SIZE];
+  char* input = NULL;
   int len;
   int num_tokens;
   char* command;
-  char* res;
   int original_fd;
   FILE* redirection;
   int mode = 0;
+  char tmp;
+  int input_idx;
 
   while (1)
   {
@@ -60,10 +63,14 @@ int main(int argc, char* argv[])
       dup2(original_fd, fileno(redirection));
     }
 
-    printf("$ ");
-    res = fgets(input, BUFFER_SIZE, stdin);
+    if (input != NULL)
+    {
+      free(input);
+      input = NULL;
+    }
+    input = readline("$ ");
 
-    if (res != NULL)
+    if (input != NULL)
     {
       // Zeroize tokens
       memset(tokens, 0, sizeof(tokens));
@@ -74,8 +81,6 @@ int main(int argc, char* argv[])
       {
         continue;
       }
-
-      input[len - 1] = '\0';
 
       // Parse into tokens including spaces and quotes
       if (parse_tokens(input, len, tokens, MAX_TOKENS, &num_tokens) == false)
