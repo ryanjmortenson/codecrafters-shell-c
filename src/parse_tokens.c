@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#define MAX_TOKENS (128)
+#define MAX_TOKEN_LEN (1024)
+
 #define SINGLE_QUOTE '\''
 #define DOUBLE_QUOTE '\"'
 #define SPACE ' '
@@ -13,13 +16,14 @@ enum parse_state
   FOUND_SLASH,
 };
 
-static char tokens[128][1024];
+static char tokens[MAX_TOKENS][MAX_TOKEN_LEN];
 
 static bool parse_input(char* input, int input_len, int* num_tokens)
 {
   char* cur_token;
   int tokens_idx = 0;
   int token_idx = 0;
+  bool res = true;
   enum parse_state state = LOOKING_FOR_SPACE;
 
   memset(tokens, 0, sizeof(tokens));
@@ -28,6 +32,19 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
   for (int i = 0; i < input_len; i++)
   {
     char cur_char = input[i];
+
+    if (tokens_idx >= MAX_TOKENS)
+    {
+      res = false;
+      break;
+    }
+
+    if (token_idx >= MAX_TOKEN_LEN)
+    {
+      res = false;
+      break;
+    }
+
     switch (state)
     {
       case LOOKING_FOR_SPACE:
@@ -85,7 +102,7 @@ static bool parse_input(char* input, int input_len, int* num_tokens)
 
   *num_tokens = tokens_idx;
 
-  return true;
+  return res;
 }
 
 bool parse_tokens(char* input, int input_len, char** out_tokens, int tokens_len, int* num_tokens)
@@ -110,7 +127,7 @@ bool parse_tokens(char* input, int input_len, char** out_tokens, int tokens_len,
 
   parse_input(input, input_len, num_tokens);
 
-  for (int idx = 0; idx < *num_tokens; idx++)
+  for (int idx = 0; idx < *num_tokens && idx < tokens_len && idx < MAX_TOKEN_LEN; idx++)
   {
     out_tokens[token_idx++] = tokens[idx];
   }
