@@ -16,6 +16,7 @@
 
 #define STDOUT_REDIRECT_SHORT ">"
 #define STDOUT_REDIRECT "1>"
+#define STDERR_REDIRECT "2>"
 
 #define ECHO_CMD "echo"
 #define EXIT_CMD "exit"
@@ -46,12 +47,21 @@ int main(int argc, char* argv[])
   char* res;
   char* redirect_file_name;
   int original_fd;
+  int redirect_type = 0;
 
   while (1)
   {
     if (redirect_file_name != NULL)
     {
-      dup2(original_fd, fileno(stdout));
+      if (redirect_type == 1)
+      {
+        dup2(original_fd, fileno(stdout));
+      }
+      else
+      {
+        dup2(original_fd, fileno(stderr));
+      }
+      redirect_type = 0;
     }
 
     printf("$ ");
@@ -91,16 +101,33 @@ int main(int argc, char* argv[])
         {
           redirect_file_name = tokens[i + 1];
           tokens[i] = NULL;
+          redirect_type = 1;
+          break;
+        }
+
+        if (strcmp(tokens[i], STDERR_REDIRECT) == 0)
+        {
+          redirect_file_name = tokens[i + 1];
+          tokens[i] = NULL;
+          redirect_type = 2;
           break;
         }
       }
 
       if (redirect_file_name != NULL)
       {
-        // printf("Redirecting output to %s\n", redirect_file_name);
-        original_fd = dup(fileno(stdout));
-        int new_fd = open(redirect_file_name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-        dup2(new_fd, fileno(stdout));
+        if (redirect_type == 1)
+        {
+          original_fd = dup(fileno(stdout));
+          int new_fd = open(redirect_file_name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+          dup2(new_fd, fileno(stdout));
+        }
+        else
+        {
+          original_fd = dup(fileno(stderr));
+          int new_fd = open(redirect_file_name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+          dup2(new_fd, fileno(stderr));
+        }
       }
 
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
