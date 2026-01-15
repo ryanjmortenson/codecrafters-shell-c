@@ -1,6 +1,6 @@
 #include <fcntl.h>
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +40,34 @@ char* builtins[] = {
   CHDIR_CMD // Formatting comment
 };
 
+char* generator(const char* input, int state)
+{
+  static int list_index, len;
+  char* name;
+
+  if (!state)
+  {
+    list_index = 0;
+    len = strlen(input);
+  }
+
+  while ((name = builtins[list_index++]))
+  {
+    if (strncmp(name, input, len) == 0)
+    {
+      return strdup(name);
+    }
+  }
+
+  return NULL;
+}
+
+char** completion(const char* input, int start, int end)
+{
+  rl_attempted_completion_over = 1;
+  return rl_completion_matches(input, generator);
+}
+
 int main(int argc, char* argv[])
 {
   // Flush after every printf
@@ -56,6 +84,7 @@ int main(int argc, char* argv[])
   char tmp;
   int input_idx;
 
+  rl_attempted_completion_function = completion;
   while (1)
   {
     if (redirection != NULL)
