@@ -13,6 +13,7 @@
 #include "parse_tokens.h"
 #include "type.h"
 
+#define COMPLETION_LIST_LEN (1024)
 #define BUFFER_SIZE (1024)
 #define MAX_TOKENS (1024)
 
@@ -32,13 +33,15 @@
 #define CHDIR_CMD "cd"
 
 char* builtins[] = {
-  ECHO_CMD, // Formatting comment
-  EXIT_CMD, // Formatting comment
-  QUIT_CMD, // Formatting comment
-  TYPE_CMD, // Formatting comment
-  PWD_CMD,  // Formatting comment
-  CHDIR_CMD // Formatting comment
+  ECHO_CMD,  // Formatting comment
+  EXIT_CMD,  // Formatting comment
+  QUIT_CMD,  // Formatting comment
+  TYPE_CMD,  // Formatting comment
+  PWD_CMD,   // Formatting comment
+  CHDIR_CMD, // Formatting comment
 };
+
+static char* completion_list[COMPLETION_LIST_LEN];
 
 char* generator(const char* input, int state)
 {
@@ -51,7 +54,7 @@ char* generator(const char* input, int state)
     len = strlen(input);
   }
 
-  while ((name = builtins[list_index++]))
+  while (list_index < COMPLETION_LIST_LEN && (name = completion_list[list_index++]))
   {
     if (strncmp(name, input, len) == 0)
     {
@@ -79,12 +82,27 @@ int main(int argc, char* argv[])
   int num_tokens;
   char* command;
   int original_fd;
-  FILE* redirection;
+  FILE* redirection = NULL;
   int mode = 0;
   char tmp;
   int input_idx;
+  int i;
+
+  for (i = 0; i < COMPLETION_LIST_LEN; i++)
+  {
+    completion_list[i] = malloc(BUFFER_SIZE);
+    memset(completion_list[i], 0, BUFFER_SIZE);
+  }
+
+  for (i = 0; i < sizeof(builtins) / sizeof(builtins[0]); i++)
+  {
+    strcpy(completion_list[i], builtins[i]);
+  }
+
+  get_cmd_list(&completion_list[i], COMPLETION_LIST_LEN - i);
 
   rl_attempted_completion_function = completion;
+
   while (1)
   {
     if (redirection != NULL)
@@ -164,6 +182,10 @@ int main(int argc, char* argv[])
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
           strncmp(command, QUIT_CMD, BUFFER_SIZE) == 0)
       {
+        for (int k = i; k < COMPLETION_LIST_LEN; k++)
+        {
+          free(completion_list[k]);
+        }
         break;
       }
 
