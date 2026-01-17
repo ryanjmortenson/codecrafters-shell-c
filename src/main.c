@@ -261,10 +261,28 @@ int main(int argc, char* argv[])
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
           strncmp(command, QUIT_CMD, BUFFER_SIZE) == 0)
       {
-        for (int k = i; k < COMPLETION_LIST_LEN; k++)
+        if (hist_file != NULL)
         {
-          free(completion_list[k]);
+          FILE* file = fopen(hist_file, "w");
+          HISTORY_STATE* hs = history_get_history_state();
+          HIST_ENTRY** he = history_list();
+
+          for (int k = i; k < COMPLETION_LIST_LEN; k++)
+          {
+            free(completion_list[k]);
+          }
+
+          if (file != NULL)
+          {
+            for (i = 0; i < hs->length; i++)
+            {
+              fputs(he[i]->line, file);
+              fputc('\n', file);
+            }
+            fclose(file);
+          }
         }
+
         break;
       }
 
