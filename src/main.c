@@ -155,6 +155,7 @@ int main(int argc, char* argv[])
   setbuf(stdout, NULL);
   static char* tokens[MAX_TOKENS];
   static char full_path[BUFFER_SIZE];
+  char* hist_file = getenv("HISTFILE");
   char* input = NULL;
   FILE* redirection = NULL;
   int len;
@@ -193,6 +194,28 @@ int main(int argc, char* argv[])
   }
 
   using_history();
+
+  if (hist_file != NULL)
+  {
+    FILE* file = fopen(hist_file, "r");
+    char buf[BUFFER_SIZE];
+
+    if (file != NULL)
+    {
+      while(fgets(buf, BUFFER_SIZE, file) != NULL)
+      {
+        if (buf[0] != '\n')
+        {
+          buf[strlen(buf) - 1] = '\0';
+          add_history(buf);
+        }
+      }
+    }
+    else
+    {
+      printf("Couldn't open history file: %s\n", tokens[2]);
+    }
+  }
 
   while (1)
   {
@@ -309,11 +332,11 @@ int main(int argc, char* argv[])
           if (strcmp(tokens[1], "-r") == 0)
           {
             FILE* file = fopen(tokens[2], "r");
-            char buf[1024];
+            char buf[BUFFER_SIZE];
 
             if (file != NULL)
             {
-              while(fgets(buf, 1024, file) != NULL)
+              while(fgets(buf, BUFFER_SIZE, file) != NULL)
               {
                 if (buf[0] != '\n')
                 {
