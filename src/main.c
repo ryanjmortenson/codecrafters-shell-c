@@ -328,6 +328,26 @@ int main(int argc, char* argv[])
               continue;
             }
           }
+          else if (strcmp(tokens[1], "-w") == 0)
+          {
+            FILE* file = fopen(tokens[2], "w");
+
+            if (file != NULL)
+            {
+              for (i = 0; i < hs->length; i++)
+              {
+                fputs(he[i]->line, file);
+                fputc('\n', file);
+              }
+              fclose(file);
+              continue;
+            }
+            else
+            {
+              printf("Couldn't open history file: %s\n", tokens[2]);
+              continue;
+            }
+          }
           else
           {
             num_to_show = atoi(tokens[1]);
