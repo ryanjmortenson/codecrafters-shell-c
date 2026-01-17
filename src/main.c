@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
       }
 
       int cur_history_idx = history_idx % HISTORY_LIST_LEN;
-      cmd_history_list[cur_history_idx] = malloc(len);
+      cmd_history_list[cur_history_idx] = malloc(len + 1);
       if (cmd_history_list[cur_history_idx] != NULL)
       {
         strcpy(cmd_history_list[cur_history_idx], input);
