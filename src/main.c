@@ -164,6 +164,7 @@ int main(int argc, char* argv[])
   char tmp;
   int input_idx;
   int i;
+  int last_hist_appended = 0;
 
   rl_attempted_completion_function = completion;
 
@@ -340,6 +341,27 @@ int main(int argc, char* argv[])
                 fputc('\n', file);
               }
               fclose(file);
+              continue;
+            }
+            else
+            {
+              printf("Couldn't open history file: %s\n", tokens[2]);
+              continue;
+            }
+          }
+          else if (strcmp(tokens[1], "-a") == 0)
+          {
+            FILE* file = fopen(tokens[2], "a");
+
+            if (file != NULL)
+            {
+              for (i = last_hist_appended; i < hs->length; i++)
+              {
+                fputs(he[i]->line, file);
+                fputc('\n', file);
+              }
+              fclose(file);
+              last_hist_appended = i;
               continue;
             }
             else
