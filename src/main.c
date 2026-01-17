@@ -183,7 +183,10 @@ int main(int argc, char* argv[])
     strncpy(completion_list[i], builtins[i], len);
   }
 
-  get_cmd_list(&completion_list[i], COMPLETION_LIST_LEN - i);
+  if (get_cmd_list(&completion_list[i], COMPLETION_LIST_LEN - i) == false)
+  {
+    printf("Failed to build command list, tab complete functionality is degraded");
+  }
 
   while (1)
   {
