@@ -13,7 +13,7 @@
 #include "parse_tokens.h"
 #include "type.h"
 
-#define COMPLETION_LIST_LEN (1024)
+#define COMPLETION_LIST_LEN (10240)
 #define BUFFER_SIZE (1024)
 #define MAX_TOKENS (1024)
 
@@ -88,20 +88,28 @@ int main(int argc, char* argv[])
   int input_idx;
   int i;
 
-  for (i = 0; i < COMPLETION_LIST_LEN; i++)
-  {
-    completion_list[i] = malloc(BUFFER_SIZE);
-    memset(completion_list[i], 0, BUFFER_SIZE);
-  }
+  rl_attempted_completion_function = completion;
 
   for (i = 0; i < sizeof(builtins) / sizeof(builtins[0]); i++)
   {
-    strcpy(completion_list[i], builtins[i]);
+    int len = strlen(builtins[i]) + 1;
+    if (len > BUFFER_SIZE)
+    {
+      printf("Built in name is too large");
+      exit(1);
+    }
+
+    completion_list[i] = malloc(len);
+    if (completion_list[i] == NULL)
+    {
+      printf("Failed to allocate memory for completion list\n");
+      exit(1);
+    }
+    memset(completion_list[i], 0, len);
+    strncpy(completion_list[i], builtins[i], len);
   }
 
   get_cmd_list(&completion_list[i], COMPLETION_LIST_LEN - i);
-
-  rl_attempted_completion_function = completion;
 
   while (1)
   {
