@@ -43,7 +43,7 @@ char* builtins[] = {
 
 static char* completion_list[COMPLETION_LIST_LEN];
 
-char* generator(const char* input, int state)
+static char* generator(const char* input, int state)
 {
   static int list_index, len;
   char* name;
@@ -65,10 +65,85 @@ char* generator(const char* input, int state)
   return NULL;
 }
 
-char** completion(const char* input, int start, int end)
+static char** completion(const char* input, int start, int end)
 {
   rl_attempted_completion_over = 1;
   return rl_completion_matches(input, generator);
+}
+
+static bool check_for_redirect(char* tokens[], int num_tokens, FILE** redirection, int* original_fd)
+{
+  int mode = 0;
+  int fd = 0;
+  int ret = false;
+
+  *redirection = NULL;
+
+  for (int i = 0; i < num_tokens; i++)
+  {
+    do
+    {
+      if (strcmp(tokens[i], STDOUT_REDIRECT_SHORT) == 0 ||
+          strcmp(tokens[i], STDOUT_REDIRECT) == 0)
+      {
+        *redirection = stdout;
+        mode = O_TRUNC;
+        break;
+      }
+
+      if (strcmp(tokens[i], STDERR_REDIRECT) == 0)
+      {
+        *redirection = stderr;
+        mode = O_TRUNC;
+        break;
+      }
+
+      if (strcmp(tokens[i], STDOUT_APPEND_REDIRECT_SHORT) == 0 ||
+          strcmp(tokens[i], STDOUT_APPEND_REDIRECT) == 0)
+      {
+        *redirection = stdout;
+        mode = O_APPEND;
+        break;
+      }
+
+      if (strcmp(tokens[i], STDERR_APPEND_REDIRECT) == 0)
+      {
+        *redirection = stderr;
+        mode = O_APPEND;
+        break;
+      }
+    } while (0);
+
+    if (*redirection != NULL)
+    {
+      *original_fd = dup(fileno(*redirection));
+      if (*original_fd >= 0)
+      {
+        fd = open(tokens[i + 1], O_CREAT | O_WRONLY | mode, 0644);
+        if (fd >= 0 && dup2(fd, fileno(*redirection)) >= 0)
+        {
+          tokens[i] = NULL;
+          ret = true;
+        }
+        else
+        {
+          printf("Couldn't duplicate file descriptor\n");
+        }
+      }
+      else
+      {
+        printf("Couldn't duplicate file descriptor\n");
+      }
+
+      if (ret == false)
+      {
+        *redirection = NULL;
+      }
+      break;
+    }
+  }
+
+  return ret;
 }
 
 int main(int argc, char* argv[])
@@ -78,12 +153,11 @@ int main(int argc, char* argv[])
   static char* tokens[MAX_TOKENS];
   static char full_path[BUFFER_SIZE];
   char* input = NULL;
+  FILE* redirection = NULL;
   int len;
   int num_tokens;
   char* command;
   int original_fd;
-  FILE* redirection = NULL;
-  int mode = 0;
   char tmp;
   int input_idx;
   int i;
@@ -123,8 +197,8 @@ int main(int argc, char* argv[])
       free(input);
       input = NULL;
     }
-    input = readline("$ ");
 
+    input = readline("$ ");
     if (input != NULL)
     {
       // Zeroize tokens
@@ -148,44 +222,7 @@ int main(int argc, char* argv[])
       command = tokens[0];
 
       // Check for redirection
-      redirection = NULL;
-      for (int i = 0; i < num_tokens; i++)
-      {
-        if (strcmp(tokens[i], STDOUT_REDIRECT_SHORT) == 0 ||
-            strcmp(tokens[i], STDOUT_REDIRECT) == 0)
-        {
-          redirection = stdout;
-          mode = O_CREAT;
-        }
-
-        if (strcmp(tokens[i], STDERR_REDIRECT) == 0)
-        {
-          redirection = stderr;
-          mode = O_CREAT;
-        }
-
-        if (strcmp(tokens[i], STDOUT_APPEND_REDIRECT_SHORT) == 0 ||
-            strcmp(tokens[i], STDOUT_APPEND_REDIRECT) == 0)
-        {
-          redirection = stdout;
-          mode = O_APPEND;
-        }
-
-        if (strcmp(tokens[i], STDERR_APPEND_REDIRECT) == 0)
-        {
-          redirection = stderr;
-          mode = O_APPEND;
-        }
-
-        if (redirection != NULL)
-        {
-          original_fd = dup(fileno(redirection));
-          int new_fd = open(tokens[i + 1], O_CREAT | O_WRONLY | mode, 0644);
-          dup2(new_fd, fileno(redirection));
-          tokens[i] = NULL;
-          break;
-        }
-      }
+      check_for_redirect(tokens, num_tokens, &redirection, &original_fd);
 
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
           strncmp(command, QUIT_CMD, BUFFER_SIZE) == 0)

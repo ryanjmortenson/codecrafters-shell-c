@@ -45,29 +45,29 @@ bool cmd_search(char* cmd, char* full_path, int full_path_len)
 
 bool get_cmd_list(char** list, int list_len)
 {
-  DIR* dp;
-  struct dirent* ep;
-  char* path = getenv(PATH_ENV_NAME);
-  int path_len = strlen(path) + 1;
+  char* env_path = getenv(PATH_ENV_NAME);
+  int path_len = strlen(env_path) + 1;
   bool ret = true;
   int list_idx = 0;
-  char* cur_path_dir;
-  char* path_copy;
-  char* full_path;
+  DIR* dp;
+  struct dirent* ep;
+  char* cur_executable;
+  char* cur_env_path;
+  char* cur_full_path;
+  char* env_path_copy;
   int res;
   int len;
-  char* cur;
 
-  path_copy = malloc(path_len);
-  if (path_copy == NULL)
+  env_path_copy = malloc(path_len);
+  if (env_path_copy == NULL)
   {
     printf("Couldn't malloc a copy of the path environment variable\n");
     ret = false;
     goto cleanup;
   }
 
-  full_path = malloc(BUFFER_SIZE);
-  if (full_path == NULL)
+  cur_full_path = malloc(BUFFER_SIZE);
+  if (cur_full_path == NULL)
   {
     printf("Couldn't malloc a buffer for storing a full path\n");
     ret = false;
@@ -75,29 +75,29 @@ bool get_cmd_list(char** list, int list_len)
   }
 
   // Copy path for using strtok which inserts '\0' at each token
-  memset(path_copy, 0, path_len);
-  strncpy(path_copy, path, path_len);
+  memset(env_path_copy, 0, path_len);
+  strncpy(env_path_copy, env_path, path_len);
 
-  cur_path_dir = strtok(path_copy, PATH_SPLIT_TOKEN);
-  while (cur_path_dir != NULL && strlen(cur_path_dir) < BUFFER_SIZE && list_idx < list_len)
+  cur_env_path = strtok(env_path_copy, PATH_SPLIT_TOKEN);
+  while (cur_env_path != NULL && strlen(cur_env_path) < BUFFER_SIZE && list_idx < list_len)
   {
-    if ((dp = opendir(cur_path_dir)) != NULL)
+    if ((dp = opendir(cur_env_path)) != NULL)
     {
       while ((ep = readdir(dp)) != NULL)
       {
         if (ep->d_type == DT_REG)
         {
-          res = snprintf(full_path, BUFFER_SIZE, PATH_JOIN_FORMAT, cur_path_dir, ep->d_name);
+          res = snprintf(cur_full_path, BUFFER_SIZE, PATH_JOIN_FORMAT, cur_env_path, ep->d_name);
 
-          if (res > 0 && res < BUFFER_SIZE && access(full_path, X_OK) == 0)
+          if (res > 0 && res < BUFFER_SIZE && access(cur_full_path, X_OK) == 0)
           {
             len = strlen(ep->d_name) + 1;
 
-            if ((cur = malloc(len)) != NULL)
+            if ((cur_executable = malloc(len)) != NULL)
             {
-              memset(cur, 0, len);
-              strncpy(cur, ep->d_name, len);
-              list[list_idx++] = cur;
+              memset(cur_executable, 0, len);
+              strncpy(cur_executable, ep->d_name, len);
+              list[list_idx++] = cur_executable;
             }
           }
         }
@@ -109,7 +109,7 @@ bool get_cmd_list(char** list, int list_len)
       }
     }
 
-    cur_path_dir = strtok(NULL, PATH_SPLIT_TOKEN);
+    cur_env_path = strtok(NULL, PATH_SPLIT_TOKEN);
   }
 
   list[list_idx] = malloc(1);
@@ -117,14 +117,14 @@ bool get_cmd_list(char** list, int list_len)
   list_idx++;
 
 cleanup:
-  if (full_path != NULL)
+  if (cur_full_path != NULL)
   {
-    free(full_path);
+    free(cur_full_path);
   }
 
-  if (path_copy != NULL)
+  if (env_path_copy != NULL)
   {
-    free(path_copy);
+    free(env_path_copy);
   }
 
   return ret;
