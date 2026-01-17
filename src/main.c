@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "cmd_exec.h"
+#include "cmd_history.h"
 #include "cmd_search.h"
 #include "parse_tokens.h"
 #include "type.h"
@@ -197,24 +198,7 @@ int main(int argc, char* argv[])
 
   if (hist_file != NULL)
   {
-    FILE* file = fopen(hist_file, "r");
-    char buf[BUFFER_SIZE];
-
-    if (file != NULL)
-    {
-      while(fgets(buf, BUFFER_SIZE, file) != NULL)
-      {
-        if (buf[0] != '\n')
-        {
-          buf[strlen(buf) - 1] = '\0';
-          add_history(buf);
-        }
-      }
-    }
-    else
-    {
-      printf("Couldn't open history file: %s\n", tokens[2]);
-    }
+    cmd_history_read(hist_file);
   }
 
   while (1)
@@ -261,26 +245,17 @@ int main(int argc, char* argv[])
       if (strncmp(command, EXIT_CMD, BUFFER_SIZE) == 0 ||
           strncmp(command, QUIT_CMD, BUFFER_SIZE) == 0)
       {
+        for (int k = i; k < COMPLETION_LIST_LEN; k++)
+        {
+          free(completion_list[k]);
+        }
+
         if (hist_file != NULL)
         {
-          FILE* file = fopen(hist_file, "w");
           HISTORY_STATE* hs = history_get_history_state();
           HIST_ENTRY** he = history_list();
 
-          for (int k = i; k < COMPLETION_LIST_LEN; k++)
-          {
-            free(completion_list[k]);
-          }
-
-          if (file != NULL)
-          {
-            for (i = 0; i < hs->length; i++)
-            {
-              fputs(he[i]->line, file);
-              fputc('\n', file);
-            }
-            fclose(file);
-          }
+          cmd_history_write(hist_file, hs, he);
         }
 
         break;
@@ -349,67 +324,18 @@ int main(int argc, char* argv[])
         {
           if (strcmp(tokens[1], "-r") == 0)
           {
-            FILE* file = fopen(tokens[2], "r");
-            char buf[BUFFER_SIZE];
-
-            if (file != NULL)
-            {
-              while(fgets(buf, BUFFER_SIZE, file) != NULL)
-              {
-                if (buf[0] != '\n')
-                {
-                  buf[strlen(buf) - 1] = '\0';
-                  add_history(buf);
-                }
-              }
-              continue;
-            }
-            else
-            {
-              printf("Couldn't open history file: %s\n", tokens[2]);
-              continue;
-            }
+            cmd_history_read(tokens[2]);
+            continue;
           }
           else if (strcmp(tokens[1], "-w") == 0)
           {
-            FILE* file = fopen(tokens[2], "w");
-
-            if (file != NULL)
-            {
-              for (i = 0; i < hs->length; i++)
-              {
-                fputs(he[i]->line, file);
-                fputc('\n', file);
-              }
-              fclose(file);
-              continue;
-            }
-            else
-            {
-              printf("Couldn't open history file: %s\n", tokens[2]);
-              continue;
-            }
+            cmd_history_write(tokens[2], hs, he);
+            continue;
           }
           else if (strcmp(tokens[1], "-a") == 0)
           {
-            FILE* file = fopen(tokens[2], "a");
-
-            if (file != NULL)
-            {
-              for (i = last_hist_appended; i < hs->length; i++)
-              {
-                fputs(he[i]->line, file);
-                fputc('\n', file);
-              }
-              fclose(file);
-              last_hist_appended = i;
-              continue;
-            }
-            else
-            {
-              printf("Couldn't open history file: %s\n", tokens[2]);
-              continue;
-            }
+            cmd_history_append(tokens[2], hs, he, &last_hist_appended);
+            continue;
           }
           else
           {
