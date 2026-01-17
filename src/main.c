@@ -14,6 +14,7 @@
 #include "type.h"
 
 #define COMPLETION_LIST_LEN (10240)
+#define HISTORY_LIST_LEN (10240)
 #define BUFFER_SIZE (1024)
 #define MAX_TOKENS (1024)
 
@@ -31,17 +32,20 @@
 #define TYPE_CMD "type"
 #define PWD_CMD "pwd"
 #define CHDIR_CMD "cd"
+#define HISTORY_CMD "history"
 
 char* builtins[] = {
-  ECHO_CMD,  // Formatting comment
-  EXIT_CMD,  // Formatting comment
-  QUIT_CMD,  // Formatting comment
-  TYPE_CMD,  // Formatting comment
-  PWD_CMD,   // Formatting comment
-  CHDIR_CMD, // Formatting comment
+  ECHO_CMD,    // Formatting comment
+  EXIT_CMD,    // Formatting comment
+  QUIT_CMD,    // Formatting comment
+  TYPE_CMD,    // Formatting comment
+  PWD_CMD,     // Formatting comment
+  CHDIR_CMD,   // Formatting comment
+  HISTORY_CMD, // Formatting comment
 };
 
 static char* completion_list[COMPLETION_LIST_LEN];
+static char* cmd_history_list[HISTORY_LIST_LEN];
 
 static char* generator(const char* input, int state)
 {
@@ -161,6 +165,7 @@ int main(int argc, char* argv[])
   char tmp;
   int input_idx;
   int i;
+  int history_idx = 0;
 
   rl_attempted_completion_function = completion;
 
@@ -212,6 +217,14 @@ int main(int argc, char* argv[])
       if (len == 1)
       {
         continue;
+      }
+
+      int cur_history_idx = history_idx % HISTORY_LIST_LEN;
+      cmd_history_list[cur_history_idx] = malloc(len);
+      if (cmd_history_list[cur_history_idx] != NULL)
+      {
+        strcpy(cmd_history_list[cur_history_idx], input);
+        history_idx++;
       }
 
       // Parse into tokens including spaces and quotes
@@ -279,6 +292,15 @@ int main(int argc, char* argv[])
         else
         {
           printf("Couldn't get current working director\n");
+        }
+        continue;
+      }
+
+      if (strncmp(command, HISTORY_CMD, BUFFER_SIZE) == 0)
+      {
+        for (i = 0; i < history_idx; i++)
+        {
+          printf("\t%d %s\n", i+1, cmd_history_list[i]);
         }
         continue;
       }
