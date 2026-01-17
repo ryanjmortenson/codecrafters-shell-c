@@ -252,10 +252,7 @@ int main(int argc, char* argv[])
 
         if (hist_file != NULL)
         {
-          HISTORY_STATE* hs = history_get_history_state();
-          HIST_ENTRY** he = history_list();
-
-          cmd_history_write(hist_file, hs, he);
+          cmd_history_write(hist_file);
         }
 
         break;
@@ -309,44 +306,7 @@ int main(int argc, char* argv[])
 
       if (strncmp(command, HISTORY_CMD, BUFFER_SIZE) == 0)
       {
-        HISTORY_STATE* hs = history_get_history_state();
-        HIST_ENTRY** he = history_list();
-        int num_to_show;
-
-        if (hs == NULL || he == NULL || *he == NULL)
-        {
-          printf("Couldn't get history\n");
-        }
-
-        num_to_show = hs->length;
-
-        if (tokens[1] != NULL)
-        {
-          if (strcmp(tokens[1], "-r") == 0)
-          {
-            cmd_history_read(tokens[2]);
-            continue;
-          }
-          else if (strcmp(tokens[1], "-w") == 0)
-          {
-            cmd_history_write(tokens[2], hs, he);
-            continue;
-          }
-          else if (strcmp(tokens[1], "-a") == 0)
-          {
-            cmd_history_append(tokens[2], hs, he, &last_hist_appended);
-            continue;
-          }
-          else
-          {
-            num_to_show = atoi(tokens[1]);
-          }
-        }
-
-        for (i = hs->length - num_to_show; i < hs->length; i++)
-        {
-          printf("\t%d %s\n", i+1, he[i]->line);
-        }
+        cmd_history_handle(tokens);
         continue;
       }
 
