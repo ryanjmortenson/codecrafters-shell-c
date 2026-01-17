@@ -298,7 +298,14 @@ int main(int argc, char* argv[])
 
       if (strncmp(command, HISTORY_CMD, BUFFER_SIZE) == 0)
       {
-        for (i = 0; i < history_idx; i++)
+        int num_to_show = history_idx;
+
+        if (tokens[1] != NULL)
+        {
+          num_to_show = atoi(tokens[1]);
+        }
+
+        for (i = history_idx - num_to_show; i < history_idx; i++)
         {
           printf("\t%d %s\n", i+1, cmd_history_list[i]);
         }
