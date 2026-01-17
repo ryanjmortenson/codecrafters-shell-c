@@ -305,7 +305,33 @@ int main(int argc, char* argv[])
 
         if (tokens[1] != NULL)
         {
-          num_to_show = atoi(tokens[1]);
+          if (strcmp(tokens[1], "-r") == 0)
+          {
+            FILE* file = fopen(tokens[2], "r");
+            char buf[1024];
+
+            if (file != NULL)
+            {
+              while(fgets(buf, 1024, file) != NULL)
+              {
+                if (buf[0] != '\n')
+                {
+                  buf[strlen(buf) - 1] = '\0';
+                  add_history(buf);
+                }
+              }
+              continue;
+            }
+            else
+            {
+              printf("Couldn't open history file: %s\n", tokens[2]);
+              continue;
+            }
+          }
+          else
+          {
+            num_to_show = atoi(tokens[1]);
+          }
         }
 
         for (i = hs->length - num_to_show; i < hs->length; i++)
