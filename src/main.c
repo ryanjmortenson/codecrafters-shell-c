@@ -193,6 +193,8 @@ int main(int argc, char* argv[])
     printf("Failed to build command list, tab complete functionality is degraded");
   }
 
+  memset(cmd_history_list, 0, sizeof(cmd_history_list));
+
   while (1)
   {
     if (redirection != NULL)
@@ -220,6 +222,12 @@ int main(int argc, char* argv[])
       }
 
       int cur_history_idx = history_idx % HISTORY_LIST_LEN;
+
+      if (cmd_history_list[cur_history_idx] != NULL)
+      {
+        free(cmd_history_list[cur_history_idx]);
+      }
+
       cmd_history_list[cur_history_idx] = malloc(len + 1);
       if (cmd_history_list[cur_history_idx] != NULL)
       {
