@@ -45,7 +45,6 @@ char* builtins[] = {
 };
 
 static char* completion_list[COMPLETION_LIST_LEN];
-static char* cmd_history_list[HISTORY_LIST_LEN];
 
 static char* generator(const char* input, int state)
 {
@@ -165,7 +164,6 @@ int main(int argc, char* argv[])
   char tmp;
   int input_idx;
   int i;
-  int history_idx = 0;
 
   rl_attempted_completion_function = completion;
 
@@ -193,7 +191,7 @@ int main(int argc, char* argv[])
     printf("Failed to build command list, tab complete functionality is degraded");
   }
 
-  memset(cmd_history_list, 0, sizeof(cmd_history_list));
+  using_history();
 
   while (1)
   {
@@ -221,19 +219,7 @@ int main(int argc, char* argv[])
         continue;
       }
 
-      int cur_history_idx = history_idx % HISTORY_LIST_LEN;
-
-      if (cmd_history_list[cur_history_idx] != NULL)
-      {
-        free(cmd_history_list[cur_history_idx]);
-      }
-
-      cmd_history_list[cur_history_idx] = malloc(len + 1);
-      if (cmd_history_list[cur_history_idx] != NULL)
-      {
-        strcpy(cmd_history_list[cur_history_idx], input);
-        history_idx++;
-      }
+      add_history(input);
 
       // Parse into tokens including spaces and quotes
       if (parse_tokens(input, len, tokens, MAX_TOKENS, &num_tokens) == false)
@@ -306,16 +292,25 @@ int main(int argc, char* argv[])
 
       if (strncmp(command, HISTORY_CMD, BUFFER_SIZE) == 0)
       {
-        int num_to_show = history_idx;
+        HISTORY_STATE* hs = history_get_history_state();
+        HIST_ENTRY** he = history_list();
+        int num_to_show;
+
+        if (hs == NULL || he == NULL || *he == NULL)
+        {
+          printf("Couldn't get history\n");
+        }
+
+        num_to_show = hs->length;
 
         if (tokens[1] != NULL)
         {
           num_to_show = atoi(tokens[1]);
         }
 
-        for (i = history_idx - num_to_show; i < history_idx; i++)
+        for (i = hs->length - num_to_show; i < hs->length; i++)
         {
-          printf("\t%d %s\n", i+1, cmd_history_list[i]);
+          printf("\t%d %s\n", i+1, he[i]->line);
         }
         continue;
       }
